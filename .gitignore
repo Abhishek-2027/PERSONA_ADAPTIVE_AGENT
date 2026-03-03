@@ -28,10 +28,7 @@ logs/
 *.log
 app.log
 
-# Local development
-.env
-.env.local
-.env.*.local
+
 
 # IDE
 .vscode/
