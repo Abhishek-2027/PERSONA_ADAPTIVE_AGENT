@@ -1,0 +1,33 @@
+Login and Account Access Troubleshooting
+
+Common Login Issues:
+
+1. Incorrect Password
+Solution:
+- Use the "Forgot Password" option.
+- Reset password via email verification link.
+- Ensure password meets complexity requirements.
+
+2. Account Locked
+Cause:
+- Multiple failed login attempts.
+
+Solution:
+- Wait 15 minutes before retrying.
+- Contact support if locked for more than 24 hours.
+
+3. Two-Factor Authentication Failure
+Solution:
+- Verify time synchronization on device.
+- Use backup authentication codes.
+- Re-register authenticator app if necessary.
+
+4. Email Not Verified
+Solution:
+- Check inbox and spam folder.
+- Request new verification email.
+
+Security Best Practices:
+- Enable multi-factor authentication.
+- Use strong and unique passwords.
+- Do not share credentials with others.

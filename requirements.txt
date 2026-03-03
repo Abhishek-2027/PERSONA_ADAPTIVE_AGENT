@@ -1,0 +1,22 @@
+# Core
+fastapi
+uvicorn
+pydantic
+
+# Vector search
+faiss-cpu
+sentence-transformers
+numpy
+
+# LLM - choose one:
+# Option A: Using Transformers (heavier but powerful)
+transformers
+torch
+accelerate
+
+# Option B: Using Ollama (easier, runs separately)
+# Just need requests
+
+# Utilities
+python-dotenv
+loguru

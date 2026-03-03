@@ -1,0 +1,79 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+personaa/
+ENV/
+env.bak/
+venv.bak/
+pythonenv*/
+
+# Virtual Environment
+personaa/
+venv/
+env/
+
+# Vector Store / Index files
+vector_store/
+*.faiss
+*.pkl
+*.index
+
+# Logs
+logs/
+*.log
+app.log
+
+# Local development
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+*.ipynb
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Unit test / coverage
+htmlcov/
+.tox/
+.coverage
+.cache
+.pytest_cache/
+
+# Database
+*.db
+*.sqlite
+
+# Ollama models (if downloaded)
+models/
+ollama_models/
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Project specific
+temp/
+test_*.py
+!test_api.py  # Keep test_api.py if you want

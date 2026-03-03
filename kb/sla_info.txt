@@ -1,0 +1,29 @@
+Service Level Agreement (SLA)
+
+Overview:
+Our SLA defines uptime guarantees and service commitments.
+
+Uptime Guarantee:
+- 99.5% uptime for Basic and Pro plans.
+- 99.9% uptime for Enterprise plan.
+
+Service Credits:
+- If uptime drops below SLA threshold, eligible customers receive service credits.
+- Credit percentage depends on outage duration.
+
+Response Time:
+- Standard support: 24-hour response.
+- Priority support: 4-hour response.
+- Enterprise support: 1-hour response.
+
+Incident Escalation:
+- Tier 1: Support engineer.
+- Tier 2: Senior engineer.
+- Tier 3: Infrastructure team.
+
+Compliance:
+- GDPR compliant.
+- SOC 2 certified.
+- Data encryption at rest and in transit.
+
+For contractual SLA adjustments, contact the enterprise sales team.

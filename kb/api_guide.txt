@@ -1,0 +1,44 @@
+API Authentication Guide
+
+Overview:
+Our platform provides RESTful APIs secured using OAuth 2.0 authentication.
+
+Common API Errors:
+
+1. 401 Unauthorized
+Cause:
+- Missing or invalid access token.
+- Expired OAuth token.
+
+Resolution:
+- Ensure the Authorization header includes:
+  Authorization: Bearer <access_token>
+- Refresh token using the refresh endpoint.
+- Verify client_id and client_secret configuration.
+
+2. 403 Forbidden
+Cause:
+- Insufficient permissions.
+- IP restrictions enabled.
+- Incorrect API scope.
+
+Resolution:
+- Verify the API key has correct scope.
+- Check IP whitelist settings.
+- Confirm that your subscription plan includes access to this endpoint.
+
+3. 500 Internal Server Error
+Cause:
+- Temporary server issue.
+- Incorrect request payload format.
+
+Resolution:
+- Validate JSON body structure.
+- Retry request after 30 seconds.
+- Contact support if issue persists.
+
+Rate Limits:
+- Standard plan: 1000 requests per minute.
+- Enterprise plan: 10,000 requests per minute.
+
+All API responses are returned in JSON format.

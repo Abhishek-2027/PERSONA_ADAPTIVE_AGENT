@@ -1,0 +1,31 @@
+Billing and Subscription Policy
+
+Overview:
+Our billing operates on a monthly subscription basis.
+
+Subscription Plans:
+- Basic Plan: $49/month
+- Pro Plan: $199/month
+- Enterprise Plan: Custom pricing
+
+Billing Cycle:
+- Billing occurs on the same calendar date each month.
+- Invoices are generated automatically and sent via email.
+
+Refund Policy:
+- Refunds are available within 7 days of initial subscription.
+- No refunds for partial monthly usage.
+
+Payment Methods:
+- Credit/Debit Card
+- Bank Transfer (Enterprise only)
+
+Invoice Access:
+- Users can download invoices from the billing dashboard.
+- Past invoices are stored for 12 months.
+
+Failed Payment:
+- Account is marked overdue after 3 days.
+- Service suspension after 7 days of non-payment.
+
+For enterprise contract or SLA-related billing inquiries, contact the account manager.
