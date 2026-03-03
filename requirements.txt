@@ -2,6 +2,7 @@
 fastapi
 uvicorn
 pydantic
+requests
 
 # Vector search
 faiss-cpu
@@ -16,6 +17,9 @@ accelerate
 
 # Option B: Using Ollama (easier, runs separately)
 # Just need requests
+
+# Frontend
+streamlit>=1.28.0
 
 # Utilities
 python-dotenv

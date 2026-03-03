@@ -11,6 +11,9 @@ class Config:
     DEBUG = os.getenv("DEBUG", "True").lower() == "true"
     LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
     
+    # API settings
+    API_URL = os.getenv("API_URL", "http://localhost:8000")
+    
     # Ollama settings
     OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
     OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "phi")

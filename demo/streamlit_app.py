@@ -3,6 +3,11 @@ import requests
 import json
 from datetime import datetime
 import time
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Page config
 st.set_page_config(
@@ -11,8 +16,8 @@ st.set_page_config(
     layout="wide"
 )
 
-# API endpoint
-API_URL = "http://localhost:8000"
+# API endpoint - use environment variable or default to localhost
+API_URL = os.getenv("API_URL", "http://localhost:8000")
 
 # Title
 st.title("🤖 Persona-Adaptive Customer Support Agent")
@@ -57,13 +62,17 @@ with st.sidebar:
     
     # Health check
     try:
-        response = requests.get(f"{API_URL}/health")
+        response = requests.get(f"{API_URL}/health", timeout=5)
         if response.status_code == 200:
-            st.success("✅ Connected to API")
+            st.success(f"✅ Connected to API at {API_URL}")
         else:
-            st.error("❌ API connection failed")
-    except:
-        st.error("❌ API not reachable. Make sure FastAPI is running.")
+            st.error(f"❌ API returned status {response.status_code}")
+    except requests.exceptions.ConnectionError:
+        st.error(f"❌ Cannot reach API at {API_URL}\n\nMake sure FastAPI is running locally or update API_URL in environment variables.")
+    except requests.exceptions.Timeout:
+        st.error(f"❌ API timeout at {API_URL}")
+    except Exception as e:
+        st.error(f"❌ API error: {str(e)}")
     
     # Reset button
     if st.button("🔄 New Conversation"):
@@ -106,11 +115,17 @@ with col1:
                             "message": prompt,
                             "conversation_id": st.session_state.conversation_id,
                             "history": [m["content"] for m in st.session_state.messages[-5:]]
-                        }
+                        },
+                        timeout=30
                     )
                     
                     if response.status_code == 200:
-                        data = response.json()
+                        try:
+                            data = response.json()
+                        except ValueError as e:
+                            st.error(f"❌ Invalid JSON response from API: {str(e)}")
+                            st.error(f"Response content: {response.text[:500]}")
+                            st.stop()
                         
                         # Display response
                         st.markdown(data["response"])
@@ -149,10 +164,19 @@ with col1:
                         })
                         
                     else:
-                        st.error(f"API Error: {response.status_code}")
+                        st.error(f"❌ API Error: {response.status_code}")
+                        try:
+                            error_detail = response.json()
+                            st.error(f"Details: {error_detail}")
+                        except:
+                            st.error(f"Response: {response.text[:500]}")
                         
+                except requests.exceptions.ConnectionError:
+                    st.error(f"❌ Cannot connect to API at {API_URL}\nMake sure FastAPI is running.")
+                except requests.exceptions.Timeout:
+                    st.error(f"❌ API request timeout. Check if {API_URL} is responding.")
                 except Exception as e:
-                    st.error(f"Error: {str(e)}")
+                    st.error(f"❌ Error: {type(e).__name__}: {str(e)}")
 
 with col2:
     # Context panel
