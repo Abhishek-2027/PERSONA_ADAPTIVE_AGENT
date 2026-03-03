@@ -223,6 +223,16 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed troubleshooting.
 - **NLP**: Transformers
 - **ML Framework**: PyTorch
 
+repository and links:
+
+-GitHub repo: https://github.com/Abhishek-2027/PERSONA_ADAPTIVE_AGENT
+-Streamlit application: https://personaadaptiveagent-tt6sa9ianwdkv4abduk4sr.streamlit.app/
+
+
+full UI:
+-<img width="940" height="427" alt="image" src="https://github.com/user-attachments/assets/fd85f9ae-bebc-4388-88df-8f84ece542b4" />
+
+
 ## License
 
 MIT
