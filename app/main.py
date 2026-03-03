@@ -157,57 +157,31 @@ async def chat(request: ChatRequest):
         
         # 1. Detect persona
         logger.info(f"Processing message: {request.message[:50]}...")
-        try:
-            persona_result = persona_detector.detect(request.message)
-            logger.info(f"Persona detected: {persona_result}")
-        except Exception as e:
-            logger.error(f"Error in persona detection: {e}", exc_info=True)
-            raise HTTPException(status_code=500, detail=f"Persona detection failed: {str(e)}")
+        persona_result = persona_detector.detect(request.message)
         
         # 2. Classify intent
-        try:
-            intent_result = intent_classifier.classify(request.message)
-            logger.info(f"Intent classified: {intent_result}")
-        except Exception as e:
-            logger.error(f"Error in intent classification: {e}", exc_info=True)
-            raise HTTPException(status_code=500, detail=f"Intent classification failed: {str(e)}")
+        intent_result = intent_classifier.classify(request.message)
         
         # 3. Retrieve knowledge base content
-        try:
-            context, confidence = retriever.get_context_string(request.message)
-            logger.info(f"Context retrieved with confidence: {confidence}")
-        except Exception as e:
-            logger.error(f"Error in knowledge retrieval: {e}", exc_info=True)
-            raise HTTPException(status_code=500, detail=f"Knowledge retrieval failed: {str(e)}")
+        context, confidence = retriever.get_context_string(request.message)
         
         # 4. Generate response
-        try:
-            response = generator.generate(
-                user_message=request.message,
-                context=context,
-                persona=persona_result["persona"],
-                intent=intent_result,
-                conv_id=conv_id
-            )
-            logger.info(f"Response generated successfully")
-        except Exception as e:
-            logger.error(f"Error in response generation: {e}", exc_info=True)
-            raise HTTPException(status_code=500, detail=f"Response generation failed: {str(e)}")
+        response = generator.generate(
+            user_message=request.message,
+            context=context,
+            persona=persona_result["persona"],
+            intent=intent_result,
+            conv_id=conv_id
+        )
         
         # 5. Check if escalation needed
-        try:
-            should_escalate, reason = escalation_engine.should_escalate(
-                message=request.message,
-                persona=persona_result["persona"],
-                intent=intent_result,
-                confidence=confidence,
-                history=history
-            )
-            logger.info(f"Escalation check: escalated={should_escalate}, reason={reason}")
-        except Exception as e:
-            logger.error(f"Error in escalation check: {e}", exc_info=True)
-            should_escalate = False
-            reason = "Escalation check error"
+        should_escalate, reason = escalation_engine.should_escalate(
+            message=request.message,
+            persona=persona_result["persona"],
+            intent=intent_result,
+            confidence=confidence,
+            history=history
+        )
         
         # Prepare context summary
         context_summary = f"Persona: {persona_result['persona']}, Intent: {intent_result['intent']}"
@@ -227,17 +201,14 @@ async def chat(request: ChatRequest):
         
         # If escalated, prepare context for human
         if should_escalate:
-            try:
-                escalation_context = escalation_engine.prepare_context(
-                    message=request.message,
-                    persona=persona_result["persona"],
-                    intent=intent_result,
-                    response=response,
-                    history=history
-                )
-                logger.info(f"Escalation context prepared with priority: {escalation_context.get('priority', 'unknown')}")
-            except Exception as e:
-                logger.error(f"Error preparing escalation context: {e}", exc_info=True)
+            escalation_context = escalation_engine.prepare_context(
+                message=request.message,
+                persona=persona_result["persona"],
+                intent=intent_result,
+                response=response,
+                history=history
+            )
+            logger.info(f"Escalation context prepared with priority: {escalation_context.get('priority', 'unknown')}")
         
         logger.info(f"Response generated successfully for conv_id: {conv_id}")
         return chat_response
@@ -246,8 +217,8 @@ async def chat(request: ChatRequest):
         # Re-raise HTTP exceptions
         raise
     except Exception as e:
-        logger.error(f"Unexpected error processing chat request: {type(e).__name__}: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Internal server error: {type(e).__name__}: {str(e)}")
+        logger.error(f"Error processing chat request: {e}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 @app.get("/history/{conversation_id}")
 async def get_history(conversation_id: str):

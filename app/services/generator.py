@@ -1,18 +1,17 @@
-import requests
-import time
 import random
 import re
+import time
 from typing import Dict, Any, Optional, List
 from app.utils.logger import logger
 from app.config import config
 
 class ResponseGenerator:
-    """Interactive support chatbot with step-by-step guidance"""
+    """Generator with Llama disabled - uses templates + KB"""
     
     def __init__(self):
-        self.base_url = config.OLLAMA_BASE_URL
-        self.model = config.OLLAMA_MODEL
+        # Completely disable Llama
         self.ollama_available = False
+        logger.info("🚀 Llama disabled - using template + KB mode")
         
         # Track conversation state per user
         self.conversation_state = {}
@@ -54,21 +53,11 @@ class ResponseGenerator:
                     },
                     {
                         'step': 3,
-                        'instruction': "**Connection Pool Configuration Examples:**\n\n**Python/SQLAlchemy:**\n```python\ncreate_engine(\n    'postgresql://user:pass@localhost/db',\n    pool_size=20,\n    max_overflow=10,\n    pool_timeout=30,\n    pool_recycle=3600\n)\n```\n\n**Node.js/PostgreSQL:**\n```javascript\nconst pool = new Pool({\n    max: 20,\n    idleTimeoutMillis: 30000,\n    connectionTimeoutMillis: 2000,\n})\n```\n\n**Java/Spring Boot:**\n```properties\nspring.datasource.hikari.maximum-pool-size=20\nspring.datasource.hikari.connection-timeout=30000\nspring.datasource.hikari.idle-timeout=600000\n```",
+                        'instruction': "**Connection Pool Configuration Examples:**\n\n**Python/SQLAlchemy:**\n```python\ncreate_engine(\n    'postgresql://user:pass@localhost/db',\n    pool_size=20,\n    max_overflow=10,\n    pool_timeout=30,\n    pool_recycle=3600\n)\n```\n\n**Node.js/PostgreSQL:**\n```javascript\nconst pool = new Pool({\n    max: 20,\n    idleTimeoutMillis: 30000,\n    connectionTimeoutMillis: 2000,\n})\n```",
                         'options': [
                             "Applied these settings",
                             "Still getting errors",
                             "Need more help",
-                            "Escalate to engineering"
-                        ]
-                    },
-                    {
-                        'step': 4,
-                        'instruction': "**Additional Troubleshooting Steps:**\n\n1. **Monitor database metrics:** CPU, memory, connections\n2. **Check for slow queries** that might be holding connections\n3. **Implement connection retry logic** with exponential backoff\n4. **Consider connection pooling middleware** like PgBouncer\n\nWould you like me to explain any of these in detail?",
-                        'options': [
-                            "Explain monitoring",
-                            "Show retry logic",
-                            "This solved it! 🎉",
                             "Escalate to engineering"
                         ]
                     }
@@ -178,20 +167,36 @@ class ResponseGenerator:
                 ],
                 'completion': "Your billing issue has been noted. You'll receive an email confirmation shortly. Anything else? 💳",
                 'escalation': "I'm connecting you to our billing specialists who can assist with this. Please hold on... 👤"
+            },
+            
+            'account': {
+                'name': 'Account Settings',
+                'emoji': '⚙️',
+                'steps': [
+                    {
+                        'step': 1,
+                        'instruction': "What account setting would you like to update?",
+                        'options': [
+                            "Change email",
+                            "Update profile",
+                            "Delete account",
+                            "Notification settings"
+                        ]
+                    },
+                    {
+                        'step': 2,
+                        'instruction': "You can update this in Settings > Account. Would you like step-by-step guidance?",
+                        'options': [
+                            "Yes, guide me",
+                            "I'll do it myself",
+                            "I don't see the option"
+                        ]
+                    }
+                ],
+                'completion': "Your account has been updated successfully! ✅",
+                'escalation': "This requires account verification. Let me connect you with our account specialists. 👤"
             }
         }
-        
-        self._test_connection()
-    
-    def _test_connection(self):
-        """Test if Ollama is available"""
-        try:
-            response = requests.get(f"{self.base_url}/api/tags", timeout=2)
-            if response.status_code == 200:
-                self.ollama_available = True
-                logger.info("✅ Ollama available")
-        except:
-            logger.info("📝 Using interactive mode")
     
     def _get_user_state(self, conv_id: str) -> Dict:
         """Get or create user conversation state"""
@@ -201,7 +206,8 @@ class ResponseGenerator:
                 'current_step': 0,
                 'awaiting_response': False,
                 'history': [],
-                'last_question': None
+                'escalation_count': 0,
+                'frustration_level': 0
             }
         return self.conversation_state[conv_id]
     
@@ -215,7 +221,7 @@ class ResponseGenerator:
         
         topic_keywords = {
             'technical': ['error', 'bug', 'crash', 'not working', 'broken', 'freeze', 'slow', 'glitch', 'exception'],
-            'login': ['login', 'log in', 'sign in', 'signin', 'password', 'forgot', 'can\'t access', 'account locked'],
+            'login': ['login', 'log in', 'sign in', 'signin', 'password', 'forgot', "can't access", 'account locked'],
             'billing': ['bill', 'payment', 'charge', 'refund', 'invoice', 'subscription', 'cancel', 'money'],
             'account': ['account', 'profile', 'email', 'username', 'settings', 'preferences', 'update']
         }
@@ -228,22 +234,17 @@ class ResponseGenerator:
     
     def _is_greeting(self, message: str) -> bool:
         """Check if message is a greeting"""
-        greetings = ['hi', 'hello', 'hey', 'hola', 'hi there', 'hello there', 'good morning', 'good evening']
+        greetings = ['hi', 'hello', 'hey', 'hola', 'hi there', 'hello there']
         return message.lower().strip() in greetings
-    
-    def _handle_greeting(self) -> str:
-        """Return a greeting response"""
-        return random.choice(self.greetings)
     
     def _format_options(self, options: List[str]) -> str:
         """Format options as a numbered list"""
         formatted = "\n\n**What would you like to do?**\n"
         for i, option in enumerate(options, 1):
             formatted += f"{i}. {option}\n"
-        formatted += "\n*(Just type the number or your choice)*"
         return formatted
     
-    def _get_flow_step_response(self, topic: str, step_num: int, include_options: bool = True) -> str:
+    def _get_flow_step_response(self, topic: str, step_num: int) -> str:
         """Get response for a specific step in the flow"""
         flow = self.support_flows.get(topic)
         if not flow:
@@ -256,13 +257,56 @@ class ResponseGenerator:
         step = steps[step_num - 1]
         response = f"{flow['emoji']} **Step {step_num}: {step['instruction']}**"
         
-        if include_options and step.get('options'):
+        if step.get('options'):
             response += self._format_options(step['options'])
         
         return response
     
-    def _process_option_selection(self, message: str, state: Dict) -> str:
-        """Process user's option selection with better matching"""
+    def _check_escalation_needed(self, message: str, state: Dict) -> bool:
+        """Check if conversation should be escalated to human"""
+        
+        message_lower = message.lower()
+        
+        # 1. Direct escalation keywords
+        escalation_keywords = [
+            'human', 'agent', 'speak to', 'talk to', 'real person',
+            'supervisor', 'manager', 'complaint', 'escalate',
+            'customer service', 'representative'
+        ]
+        
+        if any(keyword in message_lower for keyword in escalation_keywords):
+            state['escalation_count'] += 1
+            return True
+        
+        # 2. High frustration detection
+        frustration_indicators = [
+            'frustrated', 'angry', 'annoyed', 'ridiculous', 'terrible',
+            'useless', 'worst', 'horrible', 'disgusting', 'hate'
+        ]
+        
+        if any(word in message_lower for word in frustration_indicators):
+            state['frustration_level'] += 2
+        
+        # 3. ALL CAPS detection (shouting)
+        if len(message) > 10 and sum(1 for c in message if c.isupper()) > len(message) * 0.5:
+            state['frustration_level'] += 1
+        
+        # 4. Repetition detection (same issue multiple times)
+        if len(state['history']) >= 3:
+            last_three = state['history'][-3:]
+            similar_count = sum(1 for msg in last_three if msg == message)
+            if similar_count >= 2:
+                state['escalation_count'] += 1
+                return True
+        
+        # 5. Check frustration threshold
+        if state['frustration_level'] >= 3:
+            return True
+        
+        return False
+    
+    def _process_option_selection(self, message: str, state: Dict) -> Optional[str]:
+        """Process user's option selection"""
         message_lower = message.lower().strip()
         topic = state['current_topic']
         step = state['current_step']
@@ -278,18 +322,16 @@ class ResponseGenerator:
         current_step = steps[step - 1]
         options = current_step.get('options', [])
         
-        # Map common phrases to options
-        success_phrases = ['worked', 'done', 'thanks', 'helped', 'great', 'awesome', 'perfect', 'solved', 'fixed', 'yes it worked', 'it worked', 'that helped', 'good']
-        escalation_phrases = ['human', 'escalate', 'agent', 'engineering', 'support', 'person', 'talk to', 'speak to']
-        
-        # Check if this is a success message
+        # Success phrases
+        success_phrases = ['worked', 'done', 'thanks', 'helped', 'great', '🎉']
         if any(phrase in message_lower for phrase in success_phrases):
             state['current_topic'] = None
             state['current_step'] = 0
             state['awaiting_response'] = False
             return f"{flow['completion']} Is there anything else I can help with?"
         
-        # Check if this is an escalation request
+        # Escalation phrases
+        escalation_phrases = ['human', 'escalate', 'agent', 'engineering']
         if any(phrase in message_lower for phrase in escalation_phrases):
             state['current_topic'] = None
             state['current_step'] = 0
@@ -301,10 +343,9 @@ class ResponseGenerator:
             choice_num = int(message_lower)
             if 1 <= choice_num <= len(options):
                 selected = options[choice_num - 1]
-                logger.info(f"User selected option {choice_num}: {selected}")
                 
                 # Check if selected option is a success option
-                if '🎉' in selected or 'worked' in selected.lower() or 'solved' in selected.lower():
+                if '🎉' in selected or 'worked' in selected.lower():
                     state['current_topic'] = None
                     state['current_step'] = 0
                     state['awaiting_response'] = False
@@ -316,7 +357,6 @@ class ResponseGenerator:
                     state['current_step'] = next_step
                     return self._get_flow_step_response(topic, next_step)
                 else:
-                    # Flow completed
                     state['current_topic'] = None
                     state['current_step'] = 0
                     state['awaiting_response'] = False
@@ -324,79 +364,29 @@ class ResponseGenerator:
             else:
                 return "Please select a valid option number."
         
-        # Check if user typed something that matches an option
-        best_match = None
-        best_score = 0
-        for i, opt in enumerate(options):
-            opt_lower = opt.lower()
-            # Calculate match score
-            score = 0
-            if opt_lower in message_lower:
-                score += len(opt_lower)
-            words_in_opt = set(opt_lower.split())
-            words_in_msg = set(message_lower.split())
-            common_words = words_in_opt.intersection(words_in_msg)
-            score += len(common_words) * 3
-            
-            if score > best_score:
-                best_score = score
-                best_match = (i, opt)
-        
-        if best_match and best_score > 5:
-            choice_num = best_match[0] + 1
-            selected = best_match[1]
-            logger.info(f"Matched to option {choice_num}: {selected}")
-            
-            # Check if matched option is a success option
-            if '🎉' in selected or 'worked' in selected.lower() or 'solved' in selected.lower():
-                state['current_topic'] = None
-                state['current_step'] = 0
-                state['awaiting_response'] = False
-                return f"{flow['completion']} Is there anything else I can help with?"
-            
-            # Move to next step
-            next_step = step + 1
-            if next_step <= len(steps):
-                state['current_step'] = next_step
-                return self._get_flow_step_response(topic, next_step)
-            else:
-                # Flow completed
-                state['current_topic'] = None
-                state['current_step'] = 0
-                state['awaiting_response'] = False
-                return flow['completion']
-        
-        return None  # Not an option selection
+        return None
     
-    def _handle_general_query(self, message: str, context: str, topic: str) -> str:
-        """Handle general queries using context"""
-        if context and context != "No relevant information found in knowledge base.":
-            # Extract useful info from context
-            lines = context.split('\n')
-            useful_lines = []
-            for line in lines:
-                if line and not line.startswith('[Source:') and len(line) > 20:
-                    useful_lines.append(line)
-            
-            if useful_lines:
-                info = useful_lines[0][:200]
-                return f"Here's what I found: {info}...\n\nWould you like more specific information about {topic or 'this'}?"
+    def _format_kb_response(self, context: str, topic: str) -> Optional[str]:
+        """Format knowledge base response"""
+        if not context or context == "No relevant information found in knowledge base.":
+            return None
         
-        # Generic responses by topic
-        generic = {
-            'api': "I can help with API issues! What specific API problem are you facing? 🔧",
-            'technical': "I'll help troubleshoot your technical issue. Can you tell me more about what's happening? 🛠️",
-            'login': "I can help with login issues! Would you like me to guide you through the password reset process? 🔑",
-            'billing': "I can assist with billing questions. What specific issue are you facing? 💳",
-            'account': "I can help manage your account settings. What would you like to update? ⚙️",
-            'general': "How can I help you today? Feel free to ask about login issues, billing, technical problems, or account settings."
-        }
+        # Extract useful info from context
+        lines = context.split('\n')
+        useful = []
+        for line in lines:
+            if line and not line.startswith('[Source:') and len(line) > 20:
+                useful.append(line)
         
-        return generic.get(topic, generic['general'])
+        if useful:
+            info = useful[0][:250]
+            return f"📚 **From our knowledge base:**\n{info}...\n\nWould you like more specific information about this?"
+        
+        return None
     
     def generate(self, user_message: str, context: str, persona: str, intent: Dict[str, Any], 
                  conv_id: str = "default") -> str:
-        """Generate interactive response"""
+        """Generate response using templates + KB (Llama disabled)"""
         
         message = user_message.strip()
         
@@ -404,19 +394,33 @@ class ResponseGenerator:
         state = self._get_user_state(conv_id)
         state['history'].append(message)
         
+        # Check escalation first
+        if self._check_escalation_needed(message, state):
+            state['current_topic'] = None
+            state['current_step'] = 0
+            state['awaiting_response'] = False
+            if state['current_topic'] and state['current_topic'] in self.support_flows:
+                return self.support_flows[state['current_topic']]['escalation']
+            return "I understand you need additional assistance. Let me connect you with a human support agent. Please wait... 👤"
+        
         # Handle greetings
         if self._is_greeting(message):
             state['current_topic'] = None
             state['current_step'] = 0
             state['awaiting_response'] = False
-            return self._handle_greeting()
+            return random.choice(self.greetings)
         
         # Check if we're in an active flow
         if state['current_topic'] and state['awaiting_response']:
-            # Process user's response to current step
             result = self._process_option_selection(message, state)
             if result:
                 return result
+        
+        # Try KB first (this is the key part - use the knowledge base!)
+        kb_response = self._format_kb_response(context, None)
+        if kb_response:
+            logger.info("📚 Using KB response")
+            return kb_response
         
         # Detect topic
         topic = self._detect_topic(message)
@@ -428,8 +432,15 @@ class ResponseGenerator:
             state['awaiting_response'] = True
             return self._get_flow_step_response(topic, 1)
         
-        # Handle with context or general response
-        return self._handle_general_query(message, context, topic or 'general')
+        # Default response based on persona
+        persona_responses = {
+            'technical': "I can help with technical issues. Could you provide more details about what's happening?",
+            'frustrated': "I apologize for the inconvenience. I'm here to help resolve this. What seems to be the problem?",
+            'business': "I understand this is important. How can I assist you with your business needs today?",
+            'general': "I'm here to help! What do you need assistance with?"
+        }
+        
+        return persona_responses.get(persona, "How can I help you today?")
 
 # Global instance
 generator = ResponseGenerator()
