@@ -27,86 +27,54 @@ class ResponseGenerator:
         
         # Support flows for different topics
         self.support_flows = {
-            'login': {
-                'name': 'Login Issues',
-                'emoji': '🔑',
+            'api': {
+                'name': 'API Issues',
+                'emoji': '🔧',
                 'steps': [
                     {
                         'step': 1,
-                        'instruction': "Click on **'Forgot Password'** on the login page",
+                        'instruction': "I can help with API issues. What specific API problem are you facing?",
                         'options': [
-                            "I did that, what's next?",
-                            "I don't see that option",
-                            "I want to try something else"
+                            "500 Internal Error",
+                            "Authentication errors",
+                            "Rate limiting",
+                            "Slow response times",
+                            "Connection timeouts"
                         ]
                     },
                     {
                         'step': 2,
-                        'instruction': "Check your email inbox (and spam folder) for the password reset link",
+                        'instruction': "**For 500 errors with connection timeouts:**\nThis typically indicates:\n• Database connection pool exhaustion\n• Backend service overload\n• Network latency issues\n\n**Quick checks:**\n• Verify database is running\n• Check connection pool settings\n• Review timeout configurations",
                         'options': [
-                            "I got the email, what now?",
-                            "I didn't get any email",
-                            "The link expired"
+                            "How to fix connection pool?",
+                            "Show configuration examples",
+                            "Check server logs",
+                            "This helped! 🎉"
                         ]
                     },
                     {
                         'step': 3,
-                        'instruction': "Click the reset link and create a new password (minimum 8 characters)",
+                        'instruction': "**Connection Pool Configuration Examples:**\n\n**Python/SQLAlchemy:**\n```python\ncreate_engine(\n    'postgresql://user:pass@localhost/db',\n    pool_size=20,\n    max_overflow=10,\n    pool_timeout=30,\n    pool_recycle=3600\n)\n```\n\n**Node.js/PostgreSQL:**\n```javascript\nconst pool = new Pool({\n    max: 20,\n    idleTimeoutMillis: 30000,\n    connectionTimeoutMillis: 2000,\n})\n```\n\n**Java/Spring Boot:**\n```properties\nspring.datasource.hikari.maximum-pool-size=20\nspring.datasource.hikari.connection-timeout=30000\nspring.datasource.hikari.idle-timeout=600000\n```",
                         'options': [
-                            "Password created, but still can't login",
-                            "It says password is invalid",
-                            "I'm done, thanks!"
+                            "Applied these settings",
+                            "Still getting errors",
+                            "Need more help",
+                            "Escalate to engineering"
                         ]
                     },
                     {
                         'step': 4,
-                        'instruction': "Try logging in with your new password",
+                        'instruction': "**Additional Troubleshooting Steps:**\n\n1. **Monitor database metrics:** CPU, memory, connections\n2. **Check for slow queries** that might be holding connections\n3. **Implement connection retry logic** with exponential backoff\n4. **Consider connection pooling middleware** like PgBouncer\n\nWould you like me to explain any of these in detail?",
                         'options': [
-                            "It worked! 🎉",
-                            "Still not working",
-                            "I need human help"
+                            "Explain monitoring",
+                            "Show retry logic",
+                            "This solved it! 🎉",
+                            "Escalate to engineering"
                         ]
                     }
                 ],
-                'completion': "Great! Your login issue should be resolved. Is there anything else I can help with? 🎉",
-                'escalation': "I understand this is frustrating. Let me connect you with a human support agent who can help further. Please wait a moment... 👤"
-            },
-            
-            'billing': {
-                'name': 'Billing Issues',
-                'emoji': '💳',
-                'steps': [
-                    {
-                        'step': 1,
-                        'instruction': "Let me check your billing details. Which issue are you facing?",
-                        'options': [
-                            "Wrong charge amount",
-                            "Duplicate payment",
-                            "Want refund",
-                            "Update payment method"
-                        ]
-                    },
-                    {
-                        'step': 2,
-                        'instruction': "Please check your recent transactions in the Billing section",
-                        'options': [
-                            "I see the charge",
-                            "I don't see it",
-                            "Need to dispute it"
-                        ]
-                    },
-                    {
-                        'step': 3,
-                        'instruction': "Would you like me to initiate a refund or connect you with billing team?",
-                        'options': [
-                            "Yes, refund please",
-                            "Connect with billing team",
-                            "I'll check again"
-                        ]
-                    }
-                ],
-                'completion': "Your billing issue has been noted. You'll receive an email confirmation shortly. Anything else? 💳",
-                'escalation': "I'm connecting you to our billing specialists who can assist with this. Please hold on... 👤"
+                'completion': "Awesome! Your API issue should be resolved. Test it out and let me know if you need more help! 🔧",
+                'escalation': "I'm escalating this to our API engineering team. They'll investigate and get back to you within 2 hours. Your ticket ID is #API-" + str(random.randint(1000, 9999)) + " 👤"
             },
             
             'technical': {
@@ -148,72 +116,68 @@ class ResponseGenerator:
                 'escalation': "This needs engineering team attention. I'm creating a ticket and connecting you to our senior technical support. They'll contact you shortly. 👤"
             },
             
-            'api': {
-                'name': 'API Issues',
-                'emoji': '🔧',
+            'login': {
+                'name': 'Login Issues',
+                'emoji': '🔑',
                 'steps': [
                     {
                         'step': 1,
-                        'instruction': "I can help with API issues. What specific API problem are you facing?",
+                        'instruction': "Click on **'Forgot Password'** on the login page",
                         'options': [
-                            "500 Internal Error",
-                            "Authentication errors",
-                            "Rate limiting",
-                            "Slow response times",
-                            "Connection timeouts"
+                            "I did that, what's next?",
+                            "I don't see that option",
+                            "I want to try something else"
                         ]
                     },
                     {
                         'step': 2,
-                        'instruction': "**For 500 errors with connection timeouts:**\nThis typically indicates:\n• Database connection pool exhaustion\n• Backend service overload\n• Network latency issues\n\n**Quick checks:**\n• Verify database is running\n• Check connection pool settings\n• Review timeout configurations",
+                        'instruction': "Check your email inbox (and spam folder) for the password reset link",
                         'options': [
-                            "How to fix connection pool?",
-                            "Show configuration examples",
-                            "Check server logs",
-                            "This helped! 🎉"
+                            "I got the email, what now?",
+                            "I didn't get any email",
+                            "The link expired"
                         ]
                     },
                     {
                         'step': 3,
-                        'instruction': "**Connection Pool Configuration Examples:**\n\n**Python/SQLAlchemy:**\n```python\ncreate_engine(\n    'postgresql://user:pass@localhost/db',\n    pool_size=20,\n    max_overflow=10,\n    pool_timeout=30,\n    pool_recycle=3600\n)\n```\n\n**Node.js/PostgreSQL:**\n```javascript\nconst pool = new Pool({\n    max: 20,\n    idleTimeoutMillis: 30000,\n    connectionTimeoutMillis: 2000,\n})\n```",
+                        'instruction': "Click the reset link and create a new password (minimum 8 characters)",
                         'options': [
-                            "Applied these settings",
-                            "Still getting errors",
-                            "Need more help",
-                            "Escalate to engineering"
+                            "Password created, but still can't login",
+                            "It says password is invalid",
+                            "I'm done, thanks!"
                         ]
                     }
                 ],
-                'completion': "Awesome! Your API issue should be resolved. Test it out and let me know if you need more help! 🔧",
-                'escalation': "I'm escalating this to our API engineering team. They'll investigate and get back to you within 2 hours. Your ticket ID is #API-" + str(random.randint(1000, 9999)) + " 👤"
+                'completion': "Great! Your login issue should be resolved. Is there anything else I can help with? 🎉",
+                'escalation': "I understand this is frustrating. Let me connect you with a human support agent who can help further. Please wait a moment... 👤"
             },
             
-            'account': {
-                'name': 'Account Settings',
-                'emoji': '⚙️',
+            'billing': {
+                'name': 'Billing Issues',
+                'emoji': '💳',
                 'steps': [
                     {
                         'step': 1,
-                        'instruction': "What account setting would you like to update?",
+                        'instruction': "Let me check your billing details. Which issue are you facing?",
                         'options': [
-                            "Change email",
-                            "Update profile",
-                            "Delete account",
-                            "Notification settings"
+                            "Wrong charge amount",
+                            "Duplicate payment",
+                            "Want refund",
+                            "Update payment method"
                         ]
                     },
                     {
                         'step': 2,
-                        'instruction': "You can update this in Settings > Account. Would you like step-by-step guidance?",
+                        'instruction': "Please check your recent transactions in the Billing section",
                         'options': [
-                            "Yes, guide me",
-                            "I'll do it myself",
-                            "I don't see the option"
+                            "I see the charge",
+                            "I don't see it",
+                            "Need to dispute it"
                         ]
                     }
                 ],
-                'completion': "Your account has been updated successfully! ✅",
-                'escalation': "This requires account verification. Let me connect you with our account specialists. 👤"
+                'completion': "Your billing issue has been noted. You'll receive an email confirmation shortly. Anything else? 💳",
+                'escalation': "I'm connecting you to our billing specialists who can assist with this. Please hold on... 👤"
             }
         }
         
@@ -245,17 +209,16 @@ class ResponseGenerator:
         """Detect the main topic from user message"""
         message_lower = message.lower()
         
+        # Priority detection for API issues
+        if any(word in message_lower for word in ['api', '500', 'endpoint', 'database connection', 'timeout', 'stack trace']):
+            return 'api'
+        
         topic_keywords = {
-            'api': ['api', 'endpoint', 'rest', 'http', 'request', 'response', 'json', 'status code', '500', '404', 'timeout'],
             'technical': ['error', 'bug', 'crash', 'not working', 'broken', 'freeze', 'slow', 'glitch', 'exception'],
             'login': ['login', 'log in', 'sign in', 'signin', 'password', 'forgot', 'can\'t access', 'account locked'],
             'billing': ['bill', 'payment', 'charge', 'refund', 'invoice', 'subscription', 'cancel', 'money'],
             'account': ['account', 'profile', 'email', 'username', 'settings', 'preferences', 'update']
         }
-        
-        # Check for high-priority topics first
-        if any(word in message_lower for word in ['api', '500', 'endpoint', 'database connection', 'timeout']):
-            return 'api'
         
         for topic, keywords in topic_keywords.items():
             if any(keyword in message_lower for keyword in keywords):
@@ -299,7 +262,7 @@ class ResponseGenerator:
         return response
     
     def _process_option_selection(self, message: str, state: Dict) -> str:
-        """Process user's option selection"""
+        """Process user's option selection with better matching"""
         message_lower = message.lower().strip()
         topic = state['current_topic']
         step = state['current_step']
@@ -315,49 +278,95 @@ class ResponseGenerator:
         current_step = steps[step - 1]
         options = current_step.get('options', [])
         
-        # Check if user selected by number
-        if message_lower.isdigit():
-            choice_num = int(message_lower)
-            if 1 <= choice_num <= len(options):
-                selected = options[choice_num - 1].lower()
-            else:
-                return "Please select a valid option number."
-        else:
-            # Check if user typed the option text
-            selected = message_lower
-            matched = False
-            for opt in options:
-                if opt.lower() in selected or selected in opt.lower():
-                    selected = opt.lower()
-                    matched = True
-                    break
-            if not matched:
-                return None  # Not an option selection
+        # Map common phrases to options
+        success_phrases = ['worked', 'done', 'thanks', 'helped', 'great', 'awesome', 'perfect', 'solved', 'fixed', 'yes it worked', 'it worked', 'that helped', 'good']
+        escalation_phrases = ['human', 'escalate', 'agent', 'engineering', 'support', 'person', 'talk to', 'speak to']
         
-        # Handle special cases
-        if any(word in selected for word in ['worked', 'done', 'thanks', 'helped', 'great']):
+        # Check if this is a success message
+        if any(phrase in message_lower for phrase in success_phrases):
             state['current_topic'] = None
             state['current_step'] = 0
             state['awaiting_response'] = False
             return f"{flow['completion']} Is there anything else I can help with?"
         
-        if any(word in selected for word in ['human', 'escalate', 'agent', 'engineering']):
+        # Check if this is an escalation request
+        if any(phrase in message_lower for phrase in escalation_phrases):
             state['current_topic'] = None
             state['current_step'] = 0
             state['awaiting_response'] = False
             return flow['escalation']
         
-        # Move to next step
-        next_step = step + 1
-        if next_step <= len(steps):
-            state['current_step'] = next_step
-            return self._get_flow_step_response(topic, next_step)
-        else:
-            # Flow completed
-            state['current_topic'] = None
-            state['current_step'] = 0
-            state['awaiting_response'] = False
-            return flow['completion']
+        # Check if user selected by number
+        if message_lower.isdigit():
+            choice_num = int(message_lower)
+            if 1 <= choice_num <= len(options):
+                selected = options[choice_num - 1]
+                logger.info(f"User selected option {choice_num}: {selected}")
+                
+                # Check if selected option is a success option
+                if '🎉' in selected or 'worked' in selected.lower() or 'solved' in selected.lower():
+                    state['current_topic'] = None
+                    state['current_step'] = 0
+                    state['awaiting_response'] = False
+                    return f"{flow['completion']} Is there anything else I can help with?"
+                
+                # Move to next step
+                next_step = step + 1
+                if next_step <= len(steps):
+                    state['current_step'] = next_step
+                    return self._get_flow_step_response(topic, next_step)
+                else:
+                    # Flow completed
+                    state['current_topic'] = None
+                    state['current_step'] = 0
+                    state['awaiting_response'] = False
+                    return flow['completion']
+            else:
+                return "Please select a valid option number."
+        
+        # Check if user typed something that matches an option
+        best_match = None
+        best_score = 0
+        for i, opt in enumerate(options):
+            opt_lower = opt.lower()
+            # Calculate match score
+            score = 0
+            if opt_lower in message_lower:
+                score += len(opt_lower)
+            words_in_opt = set(opt_lower.split())
+            words_in_msg = set(message_lower.split())
+            common_words = words_in_opt.intersection(words_in_msg)
+            score += len(common_words) * 3
+            
+            if score > best_score:
+                best_score = score
+                best_match = (i, opt)
+        
+        if best_match and best_score > 5:
+            choice_num = best_match[0] + 1
+            selected = best_match[1]
+            logger.info(f"Matched to option {choice_num}: {selected}")
+            
+            # Check if matched option is a success option
+            if '🎉' in selected or 'worked' in selected.lower() or 'solved' in selected.lower():
+                state['current_topic'] = None
+                state['current_step'] = 0
+                state['awaiting_response'] = False
+                return f"{flow['completion']} Is there anything else I can help with?"
+            
+            # Move to next step
+            next_step = step + 1
+            if next_step <= len(steps):
+                state['current_step'] = next_step
+                return self._get_flow_step_response(topic, next_step)
+            else:
+                # Flow completed
+                state['current_topic'] = None
+                state['current_step'] = 0
+                state['awaiting_response'] = False
+                return flow['completion']
+        
+        return None  # Not an option selection
     
     def _handle_general_query(self, message: str, context: str, topic: str) -> str:
         """Handle general queries using context"""
