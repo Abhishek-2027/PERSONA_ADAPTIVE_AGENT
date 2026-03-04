@@ -1,22 +1,16 @@
-# Core
+# Backend API
 fastapi
-uvicorn
+uvicorn[standard]
 pydantic
 requests
 
-# Vector search
+# Vector Search
 faiss-cpu
 sentence-transformers
 numpy
 
-# LLM - choose one:
-# Option A: Using Transformers (heavier but powerful)
-transformers
+# Required for SentenceTransformer
 torch
-accelerate
-
-# Option B: Using Ollama (easier, runs separately)
-# Just need requests
 
 # Frontend
 streamlit>=1.28.0
