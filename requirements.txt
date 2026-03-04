@@ -1,20 +1,14 @@
-# Backend API
 fastapi
 uvicorn[standard]
 pydantic
 requests
 
-# Vector Search
 faiss-cpu
 sentence-transformers
 numpy
-
-# Required for SentenceTransformer
 torch
 
-# Frontend
 streamlit>=1.28.0
 
-# Utilities
 python-dotenv
 loguru
