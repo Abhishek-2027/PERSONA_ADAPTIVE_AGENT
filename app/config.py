@@ -19,7 +19,7 @@ class Config:
     OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "phi")
     
     # Model settings
-    EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "BAAI/bge-small-en-v1.5")
+    EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "all-MiniLM-L6-v2")
     
     # Paths
     BASE_DIR = Path(__file__).resolve().parent.parent
